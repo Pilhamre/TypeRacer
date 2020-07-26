@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TypeRacer</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+	<h1 class="header">TypeRacer</h1>
+	
+	<div class="timer-container">
+		<p class="timer"></p>
+	</div>
+
+	<div class="data-container">
+		<div class="quote-container">
+			<p class="quote"></p>
+		</div>
+		
+		<div class="author-container">
+			<p class="author"></p>
+		</div>
+	</div>
+		
+	<div class="keypress-container">
+		<input id="key-input" type="text" onkeypress="KeyPress(event)">
+	</div>
+
+	<div class="start-container">
+		<button class="start" onclick="Start(10)">10 Sec.</button>
+	</div>
+	<div class="start-container">
+		<button class="start" onclick="Start(30)">30 Sec.</button>
+	</div>
+	<div class="start-container">
+		<button class="start" onclick="Start(60)">60 Sec.</button>
+	</div>
+
+	<div id="score-main-parent"></div>
+
+	<script>
+		let hasStarted = false;
+
+		var quote = document.body.getElementsByClassName("quote")[0];
+		let i = 0;
+		let attemps = 0;
+		let failures = 0;
+
+		function KeyPress() {
+			if (!hasStarted) return
+
+			attemps++;
+			quote.innerHTML = quote.innerHTML.replace('_', ' ');
+			var x = event.which || event.keyCode;
+			let char = quote.textContent[i];
+
+			if (quote.textContent[i+1] === ' '){
+				quote.innerHTML = '<span class="completed-quote">' + quote.textContent.slice(0, i+1) + '</span>' + 
+					'<span style="opacity: 100%;">_</span>' + 
+					'<span class="quote">' + quote.textContent.slice(i + 1+1, quote.textContent.length) + '</span>';
+			}
+
+			if (char == '_') char = ' '
+
+			if (char === String.fromCharCode(x)){
+				if (i == quote.textContent.length-1){
+					document.getElementsByClassName("quote-container")[0].innerHTML = '<p class="quote">Lorem</p>'
+					quote.innerHTML = '<span class="completed-quote">' + quote.textContent.slice(0, i+1) + '</span>';
+					ParseJSON();
+					quote = document.body.getElementsByClassName("quote")[0];
+					i = 0;
+				}
+				else{
+					quote.innerHTML = '<span class="completed-quote">' + quote.textContent.slice(0, i+1) + '</span>' + 
+						'<span style="opacity: 100%;">' + quote.textContent[i+1] + '</span>' + 
+						'<span class="quote">' + quote.textContent.slice(i + 2, quote.textContent.length) + '</span>';
+					i++;
+				}
+			}
+			else {
+				quote.innerHTML = '<span class="completed-quote">' + quote.textContent.slice(0, i) + '</span>' + 
+					'<span style="opacity: 100%; color: red;">' + quote.textContent[i] + '</span>' + 
+					'<span class="quote">' + quote.textContent.slice(i + 1, quote.textContent.length) + '</span>';
+				failures++;
+			}
+
+			document.getElementById("key-input").value = ""
+		}
+
+		function Start(timeLimit){
+			if (hasStarted) return
+			hasStarted = true;
+
+			let counter = 3;
+			setInterval(function() {
+				if (counter >= 1){
+					document.getElementsByClassName("quote")[0].innerHTML = counter;
+					counter--;
+				}
+			}, 1000);
+
+			setTimeout(() => {
+				document.getElementById("score-main-parent").innerHTML = ""
+				
+				ParseJSON();
+				
+				var time = new Date().getTime();
+	
+				setInterval(function(){
+					if ((timeLimit - (((new Date().getTime()) - time) / 1000)).toFixed(2) >= 0)
+						document.getElementsByClassName("timer")[0].innerHTML = (timeLimit - (((new Date().getTime()) - time) / 1000)).toFixed(2)
+				}, 10);
+	
+	
+				setTimeout(function(){ 
+					document.getElementById("score-main-parent").innerHTML = '<ul class="score-parent"><li class="score-container"><p class="score" id="WPM">' + Math.round((((attemps - failures)/5)/timeLimit) * 100) + ' WPM</p></li><li class="score-container"><p class="score" id="accuracy">' + (((attemps - failures) / attemps) * 100).toFixed(1) + '% Acc.</p></li><li class="score-container"><p class="score" id="letters">' + (attemps - failures) + ' Letr.</p></li></ul>'
+					quote = document.body.getElementsByClassName("quote")[0];
+					i = 0;
+					attemps = 0;
+					failures = 0;
+					hasStarted = false;
+				}, timeLimit * 1000)
+			}, 4000);
+
+		}
+
+		function ParseJSON(){
+			$.getJSON( "quotes.json", function(data) {
+				let randomQuote = Math.floor(Math.random(data.length) * data.length);
+				document.getElementsByClassName("quote")[0].innerHTML = data[randomQuote].quoteText;
+				document.getElementsByClassName("author")[0].innerHTML = data[randomQuote].quoteAuthor;
+			});
+		}
+	</script>
+</body>
+</html>
