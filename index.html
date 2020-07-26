@@ -37,7 +37,7 @@
 		<button class="start" onclick="Start(60)">60 Sec.</button>
 	</div>
 
-	<div id="score-main-parent"></div>
+	<div id="score-main-container"></div>
 
 	<script>
 		let hasStarted = false;
@@ -101,7 +101,7 @@
 			}, 1000);
 
 			setTimeout(() => {
-				document.getElementById("score-main-parent").innerHTML = ""
+				document.getElementById("score-main-container").innerHTML = ""
 				
 				ParseJSON();
 				
@@ -114,7 +114,7 @@
 	
 	
 				setTimeout(function(){ 
-					document.getElementById("score-main-parent").innerHTML = '<ul class="score-parent"><li class="score-container"><p class="score" id="WPM">' + Math.round((((attemps - failures)/5)/timeLimit) * 100) + ' WPM</p></li><li class="score-container"><p class="score" id="accuracy">' + (((attemps - failures) / attemps) * 100).toFixed(1) + '% Acc.</p></li><li class="score-container"><p class="score" id="letters">' + (attemps - failures) + ' Letr.</p></li></ul>'
+					document.getElementById("score-main-container").innerHTML = '<div class="score-parent"><div class="score-container"><p class="score" id="WPM">' + Math.round((((attemps - failures)/5)/timeLimit) * 100) + ' WPM</p></div><div class="score-container"><p class="score" id="accuracy">' + (((attemps - failures) / attemps) * 100).toFixed(1) + '% Acc.</p></div><div class="score-container"><p class="score" id="letters">' + (attemps - failures) + ' Letr.</p></div></div>'
 					quote = document.body.getElementsByClassName("quote")[0];
 					i = 0;
 					attemps = 0;
